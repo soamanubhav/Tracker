@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroTrack | Premium GlassOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Multiplayer Cursors -->
+    <div id="cursors-container"></div>
+
+    <!-- Parallax 3D Background -->
+    <div class="bg-canvas" id="bg-canvas">
+        <div class="liquid-blob blob-1"></div>
+        <div class="liquid-blob blob-2"></div>
+    </div>
+
+    <!-- Dynamic Island Status Bar -->
+    <div class="dynamic-island" id="dynamic-island">
+        <div class="island-content">
+            <div class="island-left" id="island-left">
+                <div class="status-dot" id="supabase-indicator"></div>
+            </div>
+            <div class="island-center" id="island-center-text">HydroTrack</div>
+            <div class="island-right">
+                <button id="btn-theme" class="btn-icon island-btn" title="Toggle Theme">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+        <div class="island-expanded-content" id="island-expanded-content">
+            <span id="island-detail-text">Connected</span>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button id="btn-video" class="fab-btn" title="Start Video Call">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+        </button>
+        <button id="btn-chat" class="fab-btn" title="Team Chat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </button>
+    </div>
+
+    <!-- Chat Drawer -->
+    <div class="chat-drawer" id="chat-drawer">
+        <div class="chat-header">
+            <h3>Team Comms</h3>
+            <button id="btn-close-chat" class="btn-icon">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg system">Real-time broadcast chat connected.</div>
+        </div>
+        <form class="chat-input-area" id="chat-form">
+            <input type="text" id="chat-input" class="glass-input" placeholder="Message team..." autocomplete="off" required>
+            <button type="submit" class="btn-primary" style="padding: 0 16px; border-radius: 12px;">Send</button>
+        </form>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="video-modal" id="video-modal">
+        <div class="video-header" id="video-drag-handle">
+            <span style="font-weight: 600;">Hydro Video HQ</span>
+            <button id="btn-close-video" class="btn-icon">✕</button>
+        </div>
+        <div class="video-content" id="video-content"></div>
+    </div>
+
+    <div class="container">
+        <!-- Liquid Progress Bar -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span class="progress-title">Hydration Level</span>
+                <span class="progress-text" id="task-count-text">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill">
+                    <div class="progress-bar-wave"></div>
+                </div>
+            </div>
+        </div>
+        
+        <form class="add-task" id="task-form">
+            <input type="text" id="task-input" class="glass-input main-input" placeholder="What's the next big move?" autocomplete="off" required>
+            <select id="task-priority" class="glass-input priority-select">
+                <option value="high">High</option>
+                <option value="medium" selected>Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <button type="submit" class="btn-primary">Add</button>
+        </form>
+
+        <div class="tabs-container">
+            <button class="tab-btn active" data-filter="all">All Moves</button>
+            <button class="tab-btn" data-filter="todo">In Progress</button>
+            <button class="tab-btn" data-filter="completed">Launched</button>
+        </div>
+
+        <ul class="task-list" id="task-list">
+            <!-- Tasks will appear here smoothly via View Transitions API -->
+        </ul>
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
