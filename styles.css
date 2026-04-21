@@ -185,7 +185,7 @@
             background: var(--glass-bg);
             backdrop-filter: blur(40px) saturate(180%);
             -webkit-backdrop-filter: blur(40px) saturate(180%);
-            max-width: 680px;
+            max-width: 1100px; /* Expanded working area */
             width: 100%;
             border-radius: 24px;
             border: 1px solid var(--glass-border);
@@ -320,6 +320,9 @@
 
         .task-date { font-size: 11px; color: var(--text-muted); font-weight: 600; background: rgba(0,0,0,0.04); padding: 4px 10px; border-radius: 12px; margin-left: auto; white-space: nowrap; }
         [data-theme="dark"] .task-date { background: rgba(255,255,255,0.06); }
+        
+        .expand-chevron { margin-left: 12px; transition: transform 0.3s; opacity: 0.5; }
+        .task-item.expanded .expand-chevron { transform: rotate(180deg); opacity: 1; }
 
         .task-checkbox { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; border: 2px solid var(--text-muted); border-radius: 50%; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; background: transparent; margin: 0; flex-shrink: 0; }
         .task-checkbox:hover { border-color: var(--primary); transform: scale(1.1); }
@@ -334,7 +337,10 @@
         .task-item:hover .btn-delete { opacity: 1; transform: translateX(0) translateZ(20px); }
         .btn-delete:hover { background: rgba(255, 59, 48, 0.1); color: var(--danger); }
 
-        .task-details { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border); transform: translateZ(10px); }
+        .task-details { display: none; flex-direction: column; gap: 16px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border); transform: translateZ(10px); }
+        .task-item.expanded .task-details { display: flex; animation: detailFade 0.3s forwards; }
+        @keyframes detailFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         .detail-group { display: flex; flex-direction: column; gap: 8px; }
         .detail-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-left: 4px; }
         .detail-input { width: 100%; border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.5; min-height: 44px; }
