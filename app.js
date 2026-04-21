@@ -248,12 +248,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const merged = new Map();
         incomingTasks.filter(Boolean).forEach((task) => merged.set(task.id, task));
         preferredTasks.filter(Boolean).forEach((task) => merged.set(task.id, task));
-        return Array.from(merged.values()).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+        return Array.from(merged.values());
+    }
+
+    function sortTasksArray() {
+        const priorityVal = { high: 3, medium: 2, low: 1 };
+        tasks.sort((a, b) => {
+            if (a.completed !== b.completed) return a.completed ? 1 : -1;
+            if (priorityVal[a.priority] !== priorityVal[b.priority]) return priorityVal[b.priority] - priorityVal[a.priority];
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
     }
 
     async function loadTasks() {
         if (!hasBootstrapped) {
             tasks = getLocalTasks();
+            sortTasksArray();
             triggerRender();
             hasBootstrapped = true;
         }
@@ -265,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     triggerIsland('Synced to Cloud');
                     const remoteTasks = data.map(normalizeTask).filter(Boolean);
                     tasks = mergeTasks(tasks, remoteTasks);
+                    sortTasksArray();
                     triggerRender();
                     await saveTasksLocally();
                     return;
@@ -273,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) { triggerIsland('Sync Failed', true); }
 
         tasks = getLocalTasks();
+        sortTasksArray();
         triggerRender();
     }
 
@@ -428,19 +440,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="task-main">
                         <label class="task-content">
                             <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="window.toggleTask(${globalIndex})">
-                            <div class="task-info">
-                                <div class="task-title-row">
-                                    <span class="task-text">${task.text}</span>
-                                    <span class="priority-badge priority-${task.priority}">${task.priority}</span>
-                                    ${dateDisplay}
-                                </div>
-                            </div>
                         </label>
+                        <div class="task-info" onclick="window.toggleExpand(${globalIndex}, event)" style="cursor: pointer; flex: 1; margin-left: 16px;">
+                            <div class="task-title-row">
+                                <span class="task-text">${task.text}</span>
+                                <span class="priority-badge priority-${task.priority}">${task.priority}</span>
+                                ${dateDisplay}
+                                <svg class="expand-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </div>
+                        </div>
                         <button class="btn-delete" onclick="window.deleteTask(${globalIndex})" title="Delete task">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                         </button>
                     </div>
                     <div class="task-details">
+                        <div class="detail-group">
+                            <label>Priority</label>
+                            <select class="glass-input priority-select" onchange="window.updateField(${globalIndex}, 'priority', this.value)" style="max-width: 200px;">
+                                <option value="high" ${task.priority==='high'?'selected':''}>High</option>
+                                <option value="medium" ${task.priority==='medium'?'selected':''}>Medium</option>
+                                <option value="low" ${task.priority==='low'?'selected':''}>Low</option>
+                            </select>
+                        </div>
                         <div class="detail-group">
                             <label>Rich Text Notes</label>
                             <div class="toolbar">
@@ -490,6 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
             taskInput.value = '';
             taskInput.focus();
             
+            sortTasksArray();
             triggerRender();
             triggerIsland('Move Added');
             await saveTasksLocally();
@@ -497,9 +519,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    window.toggleExpand = (index, event) => {
+        if(event) event.stopPropagation();
+        const domIndex = Array.from(taskList.children).findIndex(li => li.querySelector(`.btn-delete[onclick*="${index}"]`));
+        const item = taskList.children[domIndex];
+        if(item) {
+            item.classList.toggle('expanded');
+        }
+    };
+
     window.toggleTask = async (index) => {
         tasks[index].completed = !tasks[index].completed;
         if(tasks[index].completed) playBubbleSound();
+        sortTasksArray();
         triggerRender();
         await saveTasksLocally();
         await syncSingleTask(tasks[index]);
@@ -508,6 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateField = async (index, field, value) => {
         if(tasks[index]) {
             tasks[index][field] = value;
+            sortTasksArray();
+            triggerRender();
             await saveTasksLocally();
             await syncSingleTask(tasks[index]);
         }
@@ -623,3 +657,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Boot
     loadTasks();
 });
+
